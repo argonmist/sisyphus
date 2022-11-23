@@ -1,0 +1,13 @@
+testcase_name:
+  step1:
+    - input:
+        desc: ''
+        xpath: ''
+        text: ''
+    - click:
+        desc: ''
+        xpath: ''
+    - check:
+        desc: ''
+        xpath: ''
+

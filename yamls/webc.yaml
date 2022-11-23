@@ -1,0 +1,3 @@
+selenoidIP: "127.0.0.1"
+url: "https://www.google.com"
+pathFile: 'webc_testcase/example.yaml'
