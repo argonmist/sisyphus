@@ -1,0 +1,20 @@
+appiumServer:
+  'http://APPIUM-SERVER-IP:4723/wd/hub'
+deviceName:
+  'DEVICE-WIFI-IP:PORT'
+platformVersion:
+  'ANDROID-VERSION'
+platformName:
+  'Android'
+appPackage:
+  'APP-PACKAGE-NAME'
+appActivity:
+  'APP-ACTIVITY'
+autoGrantPermissions: True
+chromedriverExecutable:
+  '/root/sisyphus/chromedriver'
+reportURL:
+  'http://APPIUM-SERVER-IP:8080/'
+pathFile:
+  'android_testcase/example.yaml'
+

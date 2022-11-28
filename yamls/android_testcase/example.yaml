@@ -1,0 +1,26 @@
+testcase_name:
+  step1:
+    - input:
+        desc: ''
+        xpath: ''
+        text: ''
+    - input:
+        desc: ''
+        webview_xpath: ''
+        text: ''
+    - click:
+        desc: ''
+        xpath: ''
+    - click:
+        desc: ''
+        webview_xpath: ''
+    - scroll:
+        desc: ''
+        text: ''
+    - snapshot:
+        desc: ''
+        enable: 'yes'
+    - check:
+        desc: ''
+        xpath: ''
+
