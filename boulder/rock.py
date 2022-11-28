@@ -24,9 +24,10 @@ class rock:
                     print(self.yaml_path[block_name][title][k]['input']['desc'])
                     for m in self.yaml_path[block_name][title][k]['input']:
                         if m == 'xpath':
-                            self.sendkey_to_input_box(block_name, title, k, 'xpath')
+                            input_box = self.find_element(('xpath', self.yaml_path[block_name][title][k]['input']['xpath']))
+                            input_text = self.yaml_path[block_name][title][k]['input']['text']
+                            self.send_keys(input_box, input_text)
                         if m == 'webview_xpath':
-                            self.sendkey_to_input_box(block_name, title, k, 'webview_xpath')
                             input_box = self.find_element_in_all_windows(block_name, title, k, 'input')
                             input_text = self.yaml_path[block_name][title][k]['input']['text']
                             self.send_keys(input_box, input_text)
@@ -35,7 +36,8 @@ class rock:
                     print(self.yaml_path[block_name][title][k]['click']['desc'])
                     for m in self.yaml_path[block_name][title][k]['click']:
                         if m == 'xpath':
-                            self.click_btn_click(block_name, title, k, 'xpath')
+                            click_btn = self.find_element(('xpath', self.yaml_path[block_name][title][k]['click']['xpath']))
+                            click_btn.click()
                         if m == 'webview_xpath':
                             click_btn = self.find_element_in_all_windows(block_name, title, k, 'click')
                             click_btn.click()
