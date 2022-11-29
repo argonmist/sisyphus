@@ -5,7 +5,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 from appium.webdriver.common.appiumby import AppiumBy
 from typing import Dict, NoReturn, Tuple, List, Union, Optional
+import time
 
+LAST_WINDOW = ''
 class rock:
 
     def __init__(self):
@@ -22,16 +24,18 @@ class rock:
             for j in i:
                 if j == 'input':
                     print(self.yaml_path[block_name][title][k]['input']['desc'])
+                    input_text = self.yaml_path[block_name][title][k]['input']['text']
                     for m in self.yaml_path[block_name][title][k]['input']:
                         if m == 'xpath':
                             input_box = self.find_element(('xpath', self.yaml_path[block_name][title][k]['input']['xpath']))
-                            input_text = self.yaml_path[block_name][title][k]['input']['text']
                             self.send_keys(input_box, input_text)
                         if m == 'webview_xpath':
                             input_box = self.find_element_in_all_windows(block_name, title, k, 'input')
-                            input_text = self.yaml_path[block_name][title][k]['input']['text']
                             self.send_keys(input_box, input_text)
                             self.swith_to_native()
+                        if m == 'class':
+                            input_box = self.find_element_by_class(block_name, title, k, 'input')
+                            self.send_keys(input_box, input_text)
                 if j == 'click':
                     print(self.yaml_path[block_name][title][k]['click']['desc'])
                     for m in self.yaml_path[block_name][title][k]['click']:
@@ -42,6 +46,9 @@ class rock:
                             click_btn = self.find_element_in_all_windows(block_name, title, k, 'click')
                             click_btn.click()
                             self.swith_to_native()
+                        if m == 'class':
+                            click_btn = self.find_element_by_class(block_name, title, k, 'click')
+                            click_btn.click()
                 if j == 'scroll':
                     print(self.yaml_path[block_name][title][k]['scroll']['desc'])
                     self.scroll_to_text(self.yaml_path[block_name][k]['scroll']['text'])
@@ -50,11 +57,21 @@ class rock:
                         print(self.yaml_path[block_name][title][k]['snapshot']['desc'])
                         pic_name = "~/sisyphus/pics" + block_name + "_" + title + ".png"
                         self.driver.get_screenshot_as_file(pic_name)
+                if j == 'sleep':
+                    sleep_second = int(self.yaml_path[block_name][title][k][j])
+                    info = 'sleep ' + str(sleep_second) + ' seconds'
+                    print(info)
+                    time.sleep(sleep_second)
                 if j == 'check':
                     print(self.yaml_path[block_name][title][k]['check']['desc'])
                     for m in self.yaml_path[block_name][title][k]['check']:
                         if m == 'xpath':
                             result = self.is_element_exist(('xpath', self.yaml_path[block_name][title][k]['check']['xpath']))
+                        if m == 'webview_xpath':
+                            result = self.is_element_exist_in_all_windows(block_name, title, k, 'check')
+                            self.swith_to_native()
+                        if m == 'class':
+                            result = self.is_class_element_exist_by_class(block_name, title, k, 'check')
                     print(result)
                     return result
             k = k + 1
@@ -77,13 +94,72 @@ class rock:
         return window_handles
 
     def find_element_in_all_windows(self, block_name, title, k, ele_type):
+        global LAST_WINDOW
         window_handles = self.get_all_window()
         value = self.yaml_path[block_name][title][k][ele_type]['webview_xpath']
-        for i in window_handles:
-            self.driver.switch_to.window(i)
+        if LAST_WINDOW != '':
+            print('Switch to window last time: ' + LAST_WINDOW)
+            self.driver.switch_to.window(LAST_WINDOW)
             if self.is_element_exist(('webview_xpath', value)):
                 return self.driver.find_element(By.XPATH, value)
+            print('Element not found')
+        for i in window_handles:
+            print('Switch to all windows')
+            print('Switch to ' + i)
+            self.driver.switch_to.window(i)
+            if self.is_element_exist(('webview_xpath', value)):
+                LAST_WINDOW = i
+                print('Find element in window: ' + i)
+                print('Latest window renew to: ' + i)
+                return self.driver.find_element(By.XPATH, value)
+            print('Element not found')
 
+    def is_element_exist_in_all_windows(self, block_name, title, k, ele_type):
+        global LAST_WINDOW
+        window_handles = self.get_all_window()
+        value = self.yaml_path[block_name][title][k][ele_type]['webview_xpath']
+        if LAST_WINDOW != '':
+            print('Switch to window last time ' + LAST_WINDOW)
+            self.driver.switch_to.window(LAST_WINDOW)
+            if self.is_element_exist(('webview_xpath', value)):
+                return True
+            print('Element not found')
+        for i in window_handles:
+            print('Switch to all windows')
+            print('Switch to ' + i)
+            self.driver.switch_to.window(i)
+            if self.is_element_exist(('webview_xpath', value)):
+                LAST_WINDOW = i
+                print('Find element in window: ' + i)
+                print('Latest window renew to: ' + i)
+                print(LAST_WINDOW)
+                return True
+        print('Element not found')
+        return False
+
+    def find_element_by_class(self, block_name, title, k, ele_action):
+        class_type = self.yaml_path[block_name][title][k][ele_action]['class']
+        for l in self.yaml_path[block_name][title][k][ele_action]:
+            if l == 'class_text' or l == 'class_resource-id':
+                att_type = l.strip('class_')
+                att_compare = self.yaml_path[block_name][title][k][ele_action][l]                
+        class_elements = self.find_element(('class', class_type))
+        for element in class_elements:
+            if element.get_attribute(att_type) == att_compare:
+                return element
+
+    def is_class_element_exist_by_class(self, block_name, title, k, ele_action):
+        class_type = self.yaml_path[block_name][title][k][ele_action]['class']
+        for l in self.yaml_path[block_name][title][k][ele_action]:
+            if l == 'class_text' or l == 'class_resource-id':
+                att_type = l.strip('class_')
+                att_compare = self.yaml_path[block_name][title][k][ele_action][l]
+        class_elements = self.find_element(('class', class_type))
+        for element in class_elements:
+            if element.get_attribute(att_type) == att_compare:
+                return True
+        return False
+                
     def get_current_window(self):
         self.get_all_window()
         return self.driver.current_window_handle
