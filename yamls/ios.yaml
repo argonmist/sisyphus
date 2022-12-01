@@ -1,0 +1,23 @@
+appiumServer:
+  'http://APPIUM-SERVER-IP:4723/wd/hub'
+deviceName:
+  'DEVICE_NAME'
+platformVersion:
+  'IOS_VERSION'
+platformName:
+  'iOS'
+bundleId:
+  'APP-PACKAGE-NAME'
+automationName:
+  'XCUITest'
+xcodeOrgId:
+  'XCODE_ORG_ID'
+xcodeSigningId:
+  'iPhone Developer'
+udid:
+  'DEVICE_UDID'
+reportURL:
+  'http://APPIUM-SERVER-IP:8080/'
+pathFile:
+  'ios_testcase/example.yaml'
+
