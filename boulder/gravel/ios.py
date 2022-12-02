@@ -16,6 +16,7 @@ class Singleton(object):
             caps['xcodeSigningId'] = settings['xcodeSigningId']
             caps['udid'] = settings['udid']
             caps['bundleId'] = settings['bundleId']
+            caps['webviewConnectTimeout'] = settings['webviewConnectTimeout']
             cls._instance = orig.__new__(cls, *args, **kw)
             cls._instance.driver = webdriver.Remote(settings['appiumServer'],caps)
         return cls._instance

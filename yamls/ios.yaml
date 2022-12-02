@@ -16,6 +16,8 @@ xcodeSigningId:
   'iPhone Developer'
 udid:
   'DEVICE_UDID'
+webviewConnectTimeout:
+  '90000'
 reportURL:
   'http://APPIUM-SERVER-IP:8080/'
 pathFile:

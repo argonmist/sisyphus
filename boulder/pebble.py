@@ -8,6 +8,7 @@ from appium.webdriver.common.appiumby import AppiumBy
 from typing import Dict, NoReturn, Tuple, List, Union, Optional
 import time
 
+LAST_WEBVIEW = ''
 class pebble:
 
     def __init__(self):
@@ -31,8 +32,7 @@ class pebble:
                             self.clear_box(input_box, block_name, title, k)
                             self.send_keys(input_box, input_text)
                         if m == 'webview_xpath':
-                            self.auto_webview()
-                            input_box = self.find_element(('xpath', self.yaml_path[block_name][title][k]['input']['webview_xapth']))
+                            input_box = self.find_element_in_all_webview(block_name, title, k, 'input')
                             self.clear_box(input_box, block_name, title, k)
                             self.send_keys(input_box, input_text)
                             self.swith_to_native()
@@ -40,7 +40,82 @@ class pebble:
                             input_box = self.find_element_by_type(block_name, title, k, 'input')
                             self.clear_box(input_box, block_name, title, k)
                             self.send_keys(input_box, input_text)
-     
+                if j == 'click':
+                    print(self.yaml_path[block_name][title][k]['click']['desc'])
+                    for m in self.yaml_path[block_name][title][k]['click']:
+                        if m == 'ios-class-chain':
+                            click_btn = self.find_element(('ioscc', self.yaml_path[block_name][title][k]['click']['ios-class-chain']))
+                            click_btn.click()
+                        if m == 'webview_xpath':
+                            click_btn = self.find_element_in_all_webview(block_name, title, k, 'click')
+                            click_btn.click()
+                            self.swith_to_native()
+                        if m == 'type':
+                            click_btn = self.find_element_by_type(block_name, title, k, 'click')
+                            click_btn.click()
+                if j == 'check':
+                    print(self.yaml_path[block_name][title][k]['check']['desc'])
+                    for m in self.yaml_path[block_name][title][k]['check']:
+                        if m == 'ios-class-chain':
+                            result = self.is_element_exist(('ioscc', self.yaml_path[block_name][title][k]['check']['ios-class-chain']))
+                        if m == 'webview_xpath':
+                            result = self.is_element_exist_in_all_webview(block_name, title, k, 'check')
+                            self.swith_to_native()
+                        if m == 'type':
+                            result = self.is_type_element_exist_by_type(block_name, title, k, 'check')
+                    print(result)
+                    return result
+            k = k + 1
+
+    def find_element_in_all_webview(self, block_name, title, k, ele_type):
+        global LAST_WEBVIEW
+        webview_type = 'XCUIElementTypeWebView'
+        WebDriverWait(self.driver, 20, 1).until(expected_conditions.presence_of_element_located((By.CLASS_NAME, webview_type)))
+        contexts = self.driver.contexts
+        value = self.yaml_path[block_name][title][k][ele_type]['webview_xpath']
+        if LAST_WEBVIEW != '':
+            print('Switch to webview last time: ' + LAST_WEBVIEW)
+            self.driver.switch_to.context(LAST_WEBVIEW)
+            if self.is_element_exist(('webview_xpath', value)):
+                return self.driver.find_element(By.XPATH, value)
+            print('Element not found')
+        for i in range(1, len(contexts)):
+            print(contexts[i])
+            print('Switch to all webview')
+            print('Switch to ' + contexts[i])
+            self.driver.switch_to.context(contexts[i])
+            if self.is_element_exist(('webview_xpath', value)):
+                LAST_WEBVIEW = contexts[i]
+                print('Find element in webview: ' + contexts[i])
+                print('Latest webview renew to: ' + contexts[i])
+                return self.driver.find_element(By.XPATH, value)
+            print('Element not found')
+
+    def is_element_exist_in_all_webview(self, block_name, title, k, ele_type):
+        global LAST_WEBVIEW
+        webview_type = 'XCUIElementTypeWebView'
+        WebDriverWait(self.driver, 20, 1).until(expected_conditions.presence_of_element_located((By.CLASS_NAME, webview_type)))
+        contexts = self.driver.contexts
+        value = self.yaml_path[block_name][title][k][ele_type]['webview_xpath']
+        if LAST_WEBVIEW != '':
+            print('Switch to webview last time: ' + LAST_WEBVIEW)
+            self.driver.switch_to.context(LAST_WEBVIEW)
+            if self.is_element_exist(('webview_xpath', value)):
+                return True
+            print('Element not found')
+        for i in range(1, len(contexts)):
+            print(contexts[i])
+            print('Switch to all webview')
+            print('Switch to ' + contexts[i])
+            self.driver.switch_to.context(contexts[i])
+            if self.is_element_exist(('webview_xpath', value)):
+                LAST_WEBVIEW = contexts[i]
+                print('Find element in webview: ' + contexts[i])
+                print('Latest webview renew to: ' + contexts[i])
+                return True
+            print('Element not found')
+            return False
+
     def clear_box(self, element, block_name, title, k):
         back_count = 0
         for m in self.yaml_path[block_name][title][k]['input']:
@@ -70,19 +145,27 @@ class pebble:
 
     def find_element_by_type(self, block_name, title, k, ele_action):
         element_type = self.yaml_path[block_name][title][k][ele_action]['type']
-        print(element_type)
         WebDriverWait(self.driver, 10, 2).until(expected_conditions.visibility_of_element_located((By.CLASS_NAME, element_type)))
         for l in self.yaml_path[block_name][title][k][ele_action]:
-            print(l)
             if l == 'value' or l == 'name':
                 att_type = l
                 att_compare = self.yaml_path[block_name][title][k][ele_action][l]
         type_elements = self.find_element(('class', element_type))
-        print(att_type)
         for element in type_elements:
-            print(element.get_attribute(att_type))
             if element.get_attribute(att_type) == att_compare:
                 return element
+
+    def is_type_element_exist_by_type(self, block_name, title, k, ele_action):
+        element_type = self.yaml_path[block_name][title][k][ele_action]['type']
+        for l in self.yaml_path[block_name][title][k][ele_action]:
+            if l == 'value' or l == 'name':
+                att_type = l
+                att_compare = self.yaml_path[block_name][title][k][ele_action][l]
+        type_elements = self.find_element(('class', element_type))
+        for element in type_elements:
+            if element.get_attribute(att_type) == att_compare:
+                return True
+        return False
 
     def find_element(self, element: Tuple[str, Union[str, Dict]]):
         by = element[0]
@@ -143,11 +226,6 @@ class pebble:
         except Exception:
             return False
         return True
-
-    def auto_webview(self):
-        contexts = self.driver.contexts
-        last_index = len(contexts) - 1
-        self.driver.switch_to.context(contexts[last_index])
 
     def swith_to_native(self):
         contexts = self.driver.contexts
