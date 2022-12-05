@@ -53,6 +53,19 @@ class pebble:
                         if m == 'type':
                             click_btn = self.find_element_by_type(block_name, title, k, 'click')
                             click_btn.click()
+                if j == 'scroll':
+                    print(self.yaml_path[block_name][title][k]['scroll']['desc'])
+                    self.scroll_to_name(self.yaml_path[block_name][k]['scroll']['name'])
+                if j == 'snapshot':
+                    if self.yaml_path[block_name][k]['snapshot']['enable'] == 'yes':
+                        print(self.yaml_path[block_name][title][k]['snapshot']['desc'])
+                        pic_name = "~/sisyphus/pics" + block_name + "_" + title + ".png"
+                        self.driver.get_screenshot_as_file(pic_name)
+                if j == 'sleep':
+                    sleep_second = int(self.yaml_path[block_name][title][k][j])
+                    info = 'sleep ' + str(sleep_second) + ' seconds'
+                    print(info)
+                    time.sleep(sleep_second)
                 if j == 'check':
                     print(self.yaml_path[block_name][title][k]['check']['desc'])
                     for m in self.yaml_path[block_name][title][k]['check']:
@@ -135,7 +148,7 @@ class pebble:
             return False
         return True
 
-    def scroll_to_text(self, name):
+    def scroll_to_name(self, name):
         found = False
         while not found:
             if not self.scroll_exist(name):

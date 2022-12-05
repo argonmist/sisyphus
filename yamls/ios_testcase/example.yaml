@@ -50,11 +50,11 @@ testcase_name:
         name: ''
 
 #============screen scroll=================#
-# Scroll down screen to the text           #
+# Scroll down screen to the name           #
 #==========================================#
     - scroll:
         desc: ''
-        text: ''
+        name: ''
 
 #================screen snapshot=========================#
 # Snapshot screen if and only if enable is equal to yes  #
