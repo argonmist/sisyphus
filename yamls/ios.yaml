@@ -22,4 +22,3 @@ reportURL:
   'http://APPIUM-SERVER-IP:8080/'
 pathFile:
   'ios_testcase/example.yaml'
-
