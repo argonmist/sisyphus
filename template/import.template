@@ -1,0 +1,9 @@
+from behave import *
+import sys
+import os
+home = os.getenv('HOME')
+main_path = home + '/sisyphus/boulder'
+sys.path.insert(0, main_path)
+import allure
+from gravel import readyaml
+from pebble import pebble

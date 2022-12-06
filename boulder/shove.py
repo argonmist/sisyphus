@@ -26,7 +26,8 @@ def auto_run(argv):
     path_yaml = readyaml.read(settings['pathFile'])
     
     for k, v in path_yaml.items(): 
-        task = k
+        if k != 'bdd':
+            task = k
 
     lastNum = ''
     for k, v in path_yaml[task].items():

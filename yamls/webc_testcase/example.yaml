@@ -1,3 +1,20 @@
+# set enable to no if you don't want to generate report
+bdd:
+  enable: 'yes'
+  feature1:
+    - feature: ''
+    - scenario: ''
+    - given:
+      - desc: ''
+      - step1
+      - step2
+    - when:
+      - desc: ''
+      - step3
+    - then:
+      - desc: ''
+      - step4
+
 testcase_name:
   step1:
     - input:

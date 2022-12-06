@@ -1,3 +1,20 @@
+# set enable to no if you don't want to generate report
+bdd:
+  enable: 'yes'
+  feature1:
+    - feature: ''
+    - scenario: ''
+    - given:
+      - desc: ''
+      - step1
+      - step2
+    - when:
+      - desc: ''
+      - step3
+    - then:
+      - desc: ''
+      - step4
+
 # desc: you can put any message to this value, which is helping people to understand
 # what the action doing
 

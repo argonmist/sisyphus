@@ -1,0 +1,16 @@
+testcase_name:
+  - feature:
+    - desc: ''
+  - scenario: 
+    - given:
+      - desc: ''
+      - step1
+      - step2
+    - when:
+      - desc: ''
+      - step3
+      - step4
+    - then:
+      - desc: ''
+      - step5
+      - step6
