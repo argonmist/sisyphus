@@ -17,4 +17,3 @@ reportURL:
   'http://APPIUM-SERVER-IP:8080/'
 pathFile:
   'android_testcase/example.yaml'
-

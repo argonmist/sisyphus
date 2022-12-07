@@ -6,6 +6,7 @@ main_path = home + '/sisyphus/boulder'
 sys.path.insert(0, main_path)
 from gravel import readyaml
 from pebble import pebble
+from rock import rock
 
 def auto_run(argv):
     type = ''
@@ -38,6 +39,10 @@ def auto_run(argv):
     if type == 'ios':
         for testNum in range(1, int(lastNum)+1):
             pebble().push((task, testNum)) 
+
+    if type == 'android':
+        for testNum in range(1, int(lastNum)+1):
+            rock().push((task, testNum))
 
 if __name__ == '__main__':
     auto_run(sys.argv[1:])
