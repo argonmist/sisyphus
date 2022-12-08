@@ -7,6 +7,7 @@ sys.path.insert(0, main_path)
 from gravel import readyaml
 from pebble import pebble
 from rock import rock
+import time
 
 def auto_run(argv):
     type = ''
@@ -45,5 +46,9 @@ def auto_run(argv):
             rock().push((task, testNum))
 
 if __name__ == '__main__':
+    start = time.time()
     auto_run(sys.argv[1:])
+    end = time.time()
+    print('Time spend:')
+    print(end - start)
 

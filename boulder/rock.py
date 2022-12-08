@@ -8,6 +8,7 @@ from typing import Dict, NoReturn, Tuple, List, Union, Optional
 import time
 
 LAST_WINDOW = ''
+WINDOW_SIZE = 0
 class rock:
 
     def __init__(self):
@@ -74,6 +75,18 @@ class rock:
                             result = self.is_class_element_exist_by_class(block_name, title, k, 'check')
                     print(result)
                     return result
+                if j == 'check_disapear':
+                    print(self.yaml_path[block_name][title][k]['check_disapear']['desc'])
+                    for m in self.yaml_path[block_name][title][k]['check_disapear']:
+                        if m == 'xpath':
+                            result = self.is_element_not_exist(('xpath', self.yaml_path[block_name][title][k]['check_disapear']['xpath']))
+                        if m == 'webview_xpath':
+                            result = self.is_element_not_exist_in_current_window(block_name, title, k, 'check_disapear')
+                            self.swith_to_native()
+                        if m == 'class':
+                            result = self.is_class_element_not_exist_by_class(block_name, title, k, 'check_disapear')
+                    print(result)
+                    return result
             k = k + 1
 
     def swith_to_native(self):
@@ -95,20 +108,23 @@ class rock:
 
     def find_element_in_all_windows(self, block_name, title, k, ele_type):
         global LAST_WINDOW
+        global WINDOW_SIZE
         window_handles = self.get_all_window()
         value = self.yaml_path[block_name][title][k][ele_type]['webview_xpath']
         if LAST_WINDOW != '':
             print('Switch to window last time: ' + LAST_WINDOW)
             self.driver.switch_to.window(LAST_WINDOW)
-            if self.is_element_exist(('webview_xpath', value)):
+            if not self.is_element_not_exist(('webview_xpath', value)):
+                WINDOW_SIZE = len(window_handles)
                 return self.driver.find_element(By.XPATH, value)
             print('Element not found')
         for i in window_handles:
             print('Switch to all windows')
             print('Switch to ' + i)
             self.driver.switch_to.window(i)
-            if self.is_element_exist(('webview_xpath', value)):
+            if not self.is_element_not_exist(('webview_xpath', value)):
                 LAST_WINDOW = i
+                WINDOW_SIZE = len(window_handles)
                 print('Find element in window: ' + i)
                 print('Latest window renew to: ' + i)
                 return self.driver.find_element(By.XPATH, value)
@@ -116,12 +132,14 @@ class rock:
 
     def is_element_exist_in_all_windows(self, block_name, title, k, ele_type):
         global LAST_WINDOW
+        global WINDOW_SIZE
         window_handles = self.get_all_window()
         value = self.yaml_path[block_name][title][k][ele_type]['webview_xpath']
         if LAST_WINDOW != '':
             print('Switch to window last time ' + LAST_WINDOW)
             self.driver.switch_to.window(LAST_WINDOW)
             if self.is_element_exist(('webview_xpath', value)):
+                WINDOW_SIZE = len(window_handles)
                 return True
             print('Element not found')
         for i in window_handles:
@@ -129,6 +147,7 @@ class rock:
             print('Switch to ' + i)
             self.driver.switch_to.window(i)
             if self.is_element_exist(('webview_xpath', value)):
+                WINDOW_SIZE = len(window_handles)
                 LAST_WINDOW = i
                 print('Find element in window: ' + i)
                 print('Latest window renew to: ' + i)
@@ -136,6 +155,29 @@ class rock:
                 return True
         print('Element not found')
         return False
+
+    def is_element_not_exist_in_current_window(self, block_name, title, k, ele_type):
+        global LAST_WINDOW
+        global WINDOW_SIZE
+        if self.is_new_window_not_exist():
+            print('No webview in current page')
+            return True
+        window_handles = self.get_all_window()
+        origin_len = WINDOW_SIZE
+        value = self.yaml_path[block_name][title][k][ele_type]['webview_xpath']
+        if self.is_new_window_open(window_handles, origin_len):
+            WINDOW_SIZE = len(window_handles)
+            print('New window opened')
+            return True
+        else:
+            print('Still in the same page, Switch to window last time ' + LAST_WINDOW)
+            self.driver.switch_to.window(LAST_WINDOW)
+            if self.is_element_not_exist(('webview_xpath', value)):
+                print('Element not found')
+                return True
+            else:
+                print('Element still exist')
+                return False
 
     def find_element_by_class(self, block_name, title, k, ele_action):
         class_type = self.yaml_path[block_name][title][k][ele_action]['class']
@@ -159,6 +201,25 @@ class rock:
             if element.get_attribute(att_type) == att_compare:
                 return True
         return False
+   
+    def is_class_element_not_exist_by_class(self, block_name, title, k, ele_action):
+        class_type = self.yaml_path[block_name][title][k][ele_action]['class']
+        for l in self.yaml_path[block_name][title][k][ele_action]:
+            if l == 'class_text' or l == 'class_resource-id':
+                att_type = l.strip('class_')
+                att_compare = self.yaml_path[block_name][title][k][ele_action][l]
+        
+        if self.is_new_window_not_exist():
+            print('Webview disapear')
+            return True
+
+        class_elements = self.find_element(('class', class_type))
+        for element in class_elements:
+            if element.get_attribute(att_type) == att_compare:
+                print('Element still in the current webview')
+                return False
+        print('Element not found')
+        return True
                 
     def get_current_window(self):
         self.get_all_window()
@@ -236,3 +297,42 @@ class rock:
             return False
         return True
 
+    def is_element_not_exist(self, element: Tuple[str, Union[str, Dict]], wait_seconds: int = 20) -> bool:
+        by = element[0]
+        value = element[1]
+        try:
+            if by == "id":
+                WebDriverWait(self.driver, wait_seconds, 1).until(expected_conditions.invisibility_of_element_located((By.ID, value)))
+            elif by == "name":
+                WebDriverWait(self.driver, wait_seconds, 1).until(expected_conditions.invisibility_of_element_located((By.NAME, value)))
+            elif by == "class":
+                WebDriverWait(self.driver, wait_seconds, 1).until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, value)))
+            elif by == "text":
+                WebDriverWait(self.driver, wait_seconds, 1).until(expected_conditions.invisibility_of_element_located((By.LINK_TEXT, value)))
+            elif by == "partial_text":
+                WebDriverWait(self.driver, wait_seconds, 1).until(expected_conditions.invisibility_of_element_located((By.PARTIAL_LINK_TEXT, value)))
+            elif by == "xpath":
+                WebDriverWait(self.driver, wait_seconds, 1).until(expected_conditions.invisibility_of_element_located((By.XPATH, value)))
+            elif by == "webview_xpath":
+                WebDriverWait(self.driver, wait_seconds, 1).until(expected_conditions.invisibility_of_element_located((By.XPATH, value)))
+            elif by == "css":
+                WebDriverWait(self.driver, wait_seconds, 1).until(expected_conditions.invisibility_of_element_located((By.CSS_SELECTOR, value)))
+            elif by == "tag":
+                WebDriverWait(self.driver, wait_seconds, 1).until(expected_conditions.invisibility_of_element_located((By.TAG_NAME, value)))
+            else:
+                raise NameError("Please enter the correct targeting elements,'id','name','class','text','xpath','css'.")
+        except Exception:
+            return False
+        return True
+
+    def is_new_window_open(self, window_handles, origin_len) -> bool:
+        if len(window_handles) > origin_len:
+            return True
+        else:
+            return False
+
+    def is_new_window_not_exist(self) -> bool:
+        if self.is_element_not_exist(('class', 'android.webkit.WebView')):
+            return True
+        else:
+            return False

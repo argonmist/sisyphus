@@ -108,3 +108,22 @@ testcase_name:
         desc: ''
         type: ''
         name: ''
+
+#==============check if not exist==============#
+# Check element is not present in the page     #
+#==============================================#
+    - check_disapear:
+        desc: ''
+        ios-class-chain: ''
+    - check_disapear:
+        desc: ''
+        webview_xpath: ''
+    - check_disapear:
+        desc: ''
+        type: ''
+        value: ''
+    - check_disapear:
+        desc: ''
+        type: ''
+        name: ''
+   

@@ -104,3 +104,21 @@ testcase_name:
         desc: ''
         class: ''
         class_resource-id: ''
+
+#==============check if not exist==============#
+# Check element is not present in the page     #
+#==============================================#
+    - check_disapear:
+        desc: ''
+        xpath: ''
+    - check_disapear:
+        desc: ''
+        webview_xpath: ''
+    - check_disapear:
+        desc: ''
+        class: ''
+        class_text: ''
+    - check_disapear:
+        desc: ''
+        class: ''
+        class_resource-id: ''
