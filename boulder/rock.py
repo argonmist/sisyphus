@@ -208,15 +208,10 @@ class rock:
             if l == 'class_text' or l == 'class_resource-id':
                 att_type = l.strip('class_')
                 att_compare = self.yaml_path[block_name][title][k][ele_action][l]
-        
-        if self.is_new_window_not_exist():
-            print('Webview disapear')
-            return True
-
         class_elements = self.find_element(('class', class_type))
         for element in class_elements:
             if element.get_attribute(att_type) == att_compare:
-                print('Element still in the current webview')
+                print('Element still in the current page')
                 return False
         print('Element not found')
         return True
