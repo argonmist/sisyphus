@@ -1,4 +1,10 @@
+import sys
 import os
+import shutil
+import subprocess
+home = os.getenv('HOME')
+main_path = home + '/sisyphus/boulder'
+sys.path.insert(0, main_path)
 from gravel import readyaml
 from pebble import pebble
 
@@ -6,7 +12,7 @@ class summit:
    
     def body(self, feature_file, body_list, step):
         for k, v in body_list[0].items():
-            insert = '    ' + step + ':  ' + v + '\n'
+            insert = '    ' + step + ' ' + v + '\n'
             feature_file.write(insert)
  
     def feature_generate(self, featrue_num, features, yaml_path):
@@ -14,10 +20,11 @@ class summit:
         for i in yaml_path['bdd'][featrue_num]:
             for k, v in i.items():
                 if k == 'feature':
-                    insert = 'Feature:  ' + v + '\n'
+                    insert = 'Feature: ' + v + '\n'
                     feature_file.write(insert)
                 if k == 'scenario':
-                    insert = '  Scenario:  ' + v + '\n'
+                    feature_file.write('\n')
+                    insert = '  Scenario: ' + v + '\n'
                     feature_file.write(insert)
                 if k == 'given':
                     self.body(feature_file, v, 'Given')
@@ -31,10 +38,13 @@ class summit:
     def write_property(self, python_code, step_list, step):
         for k, v in step_list[0].items():
             if step == 'given':
+                python_code.write('\n')
                 insert = '@given("' + v + '")'
             if step == 'when':
+                python_code.write('\n')
                 insert = '@when("' + v + '")'
             if step == 'then':
+                python_code.write('\n')
                 insert = '@then("' + v + '")'
         python_code.write(insert)
         python_code.write('\n')
@@ -45,9 +55,9 @@ class summit:
         for i in step_list:
             number = i.strip('step')
             if i != step_list[-1]:
-                step_code =  '    ' + code_class + '().push((' + testcase + ', ' + number + '))'
+                step_code =  '    ' + code_class + '().push((\'' + testcase + '\', ' + number + '))'
             else:
-                step_code = '    assert ' + code_class + '().push((' + testcase + ', ' + number + '))' 
+                step_code = '    assert ' + code_class + '().push((\'' + testcase + '\', ' + number + '))' 
             python_code.write(step_code)
             python_code.write('\n')
 
@@ -73,8 +83,9 @@ class summit:
                 if k == 'then':
                     self.write_property(python_code, v, 'then')
                     self.write_step(code_class, testcase, python_code, v)
+                    testcase = k
 
-    def bdd(self, platform): 
+    def bdd(self, platform, report_ip): 
         if os.path.exists('test.feature'):
             os.remove('test.feature')
         if os.path.exists('steps.py'):
@@ -88,7 +99,7 @@ class summit:
                 if i != 'enable':
                     features.append(i)
 
-        with open('../template/import.template','r') as template, open('steps.py','a') as python_code:
+        with open(home + '/sisyphus/template/import.template','r') as template, open('steps.py','a') as python_code:
             for line in template:
                 python_code.write(line)
             python_code.write('\n')
@@ -99,13 +110,33 @@ class summit:
 
         for k, v in yaml_path.items():
             if k != 'bdd':
+                testcase = k
                 if not os.path.exists(k):
                     os.mkdir(k)
                     os.mkdir(k + '/steps')
-                new_path = k + '/test.featue'
+                new_path = k + '/test.feature'
                 os.replace('test.feature', new_path)
                 os.replace('steps.py', k + '/steps/steps.py')
+                if not os.path.exists(home + '/sisyphus/bdd'):
+                    os.mkdir(home + '/sisyphus/bdd')
+                if not os.path.exists(home + '/sisyphus/bdd/' + platform):
+                    os.mkdir(home + '/sisyphus/bdd/' + platform)
+                if os.path.exists(home + '/sisyphus/bdd/' + platform + '/' + k):
+                    shutil.rmtree(home + '/sisyphus/bdd/' + platform + '/' + k)
+                    os.replace(k, home + '/sisyphus/bdd/' + platform + '/' + k)
+                else:
+                    os.replace(k, home + '/sisyphus/bdd/' + platform + '/' + k)
       
         template.close()
         python_code.close()
+
+        if yaml_path['bdd']['enable'] == 'yes':
+            os.chdir(home + '/sisyphus/bdd/' + platform)
+            behave_cmd = 'behave -f allure_behave.formatter:AllureFormatter -o report --capture ./' + testcase
+            p = subprocess.Popen(behave_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            for line in p.stdout.readlines():
+                print(line)
+            retval = p.wait()
+            report_cmd = 'allure serve -h '+ report_ip + ' -p 8883 ./report'
+            subprocess.call(report_cmd, shell=True)
  

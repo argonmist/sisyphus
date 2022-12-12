@@ -18,7 +18,5 @@ udid:
   'DEVICE_UDID'
 webviewConnectTimeout:
   '90000'
-reportURL:
-  'http://APPIUM-SERVER-IP:8080/'
 pathFile:
-  'ios_testcase/example.yaml'
+  'ios_testcase/login.yaml'
