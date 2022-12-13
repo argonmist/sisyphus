@@ -77,7 +77,7 @@ EOF
   then
     python3 ~/sisyphus/boulder/shove.py -t $type
   else
-    python3 ~/sisyphus/boulder/report.py -t $type $report_ip
+    python3 ~/sisyphus/boulder/report.py -t $type -r $report_ip
   fi
 fi
 

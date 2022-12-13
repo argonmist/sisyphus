@@ -19,4 +19,4 @@ udid:
 webviewConnectTimeout:
   '90000'
 pathFile:
-  'ios_testcase/login.yaml'
+  'ios_testcase/example.yaml'
