@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 from appium.webdriver.common.appiumby import AppiumBy
 from typing import Dict, NoReturn, Tuple, List, Union, Optional
+from loguru import logger
 import time
 
 LAST_WINDOW = ''
@@ -54,10 +55,10 @@ class rock:
                     print(self.yaml_path[block_name][title][k]['scroll']['desc'])
                     self.scroll_to_text(self.yaml_path[block_name][k]['scroll']['text'])
                 if j == 'snapshot':
-                    if self.yaml_path[block_name][k]['snapshot']['enable'] == 'yes':
+                    if self.yaml_path[block_name][title][k]['snapshot']['enable'] == 'yes':
                         print(self.yaml_path[block_name][title][k]['snapshot']['desc'])
-                        pic_name = "~/sisyphus/pics" + block_name + "_" + title + ".png"
-                        self.driver.get_screenshot_as_file(pic_name)
+                        pic_name = block_name + "_" + title
+                        self.save_screenshot(pic_name)
                 if j == 'sleep':
                     sleep_second = int(self.yaml_path[block_name][title][k][j])
                     info = 'sleep ' + str(sleep_second) + ' seconds'
@@ -75,6 +76,10 @@ class rock:
                             result = self.is_class_element_exist_by_class(block_name, title, k, 'check')
                     print(result)
                     return result
+                if j == 'keyboard':
+                    print(self.yaml_path[block_name][title][k]['keyboard']['desc'])
+                    input_string = self.yaml_path[block_name][title][k]['keyboard']['text']
+                    self.press_keyboard(input_string)
                 if j == 'check_disapear':
                     print(self.yaml_path[block_name][title][k]['check_disapear']['desc'])
                     for m in self.yaml_path[block_name][title][k]['check_disapear']:
@@ -88,6 +93,10 @@ class rock:
                     print(result)
                     return result
             k = k + 1
+
+    def save_screenshot(self, picture_name: str):
+        picture_name = "/root/sisyphus/pics/" + picture_name + ".png"
+        self.driver.get_screenshot_as_file(picture_name)
 
     def swith_to_native(self):
         contexts = self.driver.contexts
@@ -331,3 +340,24 @@ class rock:
             return True
         else:
             return False
+
+    def string_to_keycode(self, argument):
+        switcher = {
+            '0': 7,
+            '1': 8,
+            '2': 9,
+            '3': 10,
+            '4': 11,
+            '5': 12,
+            '6': 13,
+            '7': 14,
+            '8': 15,
+            '9': 16
+        }
+        return switcher.get(argument, "nothing")
+
+    def press_keyboard(self, input_string):
+        for i in [*input_string]:
+            keycode = self.string_to_keycode(i)
+            self.driver.press_keycode(keycode)
+

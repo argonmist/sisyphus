@@ -122,3 +122,10 @@ testcase_name:
         desc: ''
         class: ''
         class_resource-id: ''
+
+#===========press key on keyboard==============#
+# Press key on keyboard, only numbers for now  #
+#==============================================#
+    - keyboard:
+        desc: ''
+        text: ''
