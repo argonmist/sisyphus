@@ -83,7 +83,6 @@ class summit:
                 if k == 'then':
                     self.write_property(python_code, v, 'then')
                     self.write_step(code_class, testcase, python_code, v)
-                    testcase = k
 
     def bdd(self, platform, report_ip): 
         if os.path.exists('test.feature'):
