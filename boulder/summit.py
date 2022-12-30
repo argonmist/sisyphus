@@ -84,7 +84,20 @@ class summit:
                     self.write_property(python_code, v, 'then')
                     self.write_step(code_class, testcase, python_code, v)
 
-    def bdd(self, platform, report_ip): 
+    def report_generate(self, platform, testcase):
+        os.chdir(home + '/sisyphus/bdd/' + platform)
+        behave_cmd = 'behave -f allure_behave.formatter:AllureFormatter -o report --capture ./' + testcase
+        p = subprocess.Popen(behave_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        for line in p.stdout.readlines():
+            print(line)
+        retval = p.wait()
+
+    def report_service(self, platform, report_ip):
+        os.chdir(home + '/sisyphus/bdd/' + platform)
+        report_cmd = 'allure serve -h '+ report_ip + ' -p 8883 ./report'
+        subprocess.call(report_cmd, shell=True)
+
+    def bdd(self, platform, report_ip, report_gen, report_serve): 
         if os.path.exists('test.feature'):
             os.remove('test.feature')
         if os.path.exists('steps.py'):
@@ -130,12 +143,15 @@ class summit:
         python_code.close()
 
         if yaml_path['bdd']['enable'] == 'yes':
-            os.chdir(home + '/sisyphus/bdd/' + platform)
-            behave_cmd = 'behave -f allure_behave.formatter:AllureFormatter -o report --capture ./' + testcase
-            p = subprocess.Popen(behave_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            for line in p.stdout.readlines():
-                print(line)
-            retval = p.wait()
-            report_cmd = 'allure serve -h '+ report_ip + ' -p 8883 ./report'
-            subprocess.call(report_cmd, shell=True)
+            if report_gen == "yes":
+                print('Generate report only')
+                self.report_generate(platform, testcase)
+            elif report_serve == "yes":
+                print('Report serve only')
+                self.report_service(platform, report_ip)
+            else:
+                print('Generate report and serve the report')
+                self.report_generate(platform, testcase)
+                self.report_service(platform, report_ip)
+
  

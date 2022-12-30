@@ -10,7 +10,7 @@ help()
    echo "options:"
    echo "t     Connetion types: webc/android/ios."
    echo "h     Print this Help."
-   echo "d     Device name, for android would be ip:port, for ios would be device name in ipone setting."
+   echo "d     Device name, for android would be ip:port, for ios would be device name in iphone setting."
    echo "v     OS version of android/ios."
    echo "a     App package name in android, or app bundle id in ios."
    echo "x     For ios only, should be xcode organization identifier."
@@ -20,7 +20,10 @@ help()
    echo "r     Set -r Report_IP if you want to generate report, if not, just skip this argument"
    echo "      Report_IP: On windwos/macos, you should use docker inspect network sisyphus to find container ip first"
    echo "      On Ubuntu, report ip should be your host ip"
+   echo "      Without g/e option, it would generate report and serve the report"
    echo "c     Tase case name"
+   echo "g     Set yes to generate report only"
+   echo "e     Set yes to serve report only"
 }
 
 if [[ $# -eq 0 ]] ; then
@@ -28,7 +31,9 @@ if [[ $# -eq 0 ]] ; then
   exit 0
 fi
 
-while getopts ":ht:d:v:a:x:u:s:c:i:r:" opt; do
+report_gen="no"
+report_serve="no"
+while getopts ":ht:d:v:a:x:u:s:c:i:r:g:e:" opt; do
   case $opt in
     t) type=("$OPTARG");;
     d) device=("$OPTARG");;
@@ -40,6 +45,8 @@ while getopts ":ht:d:v:a:x:u:s:c:i:r:" opt; do
     c) case=("$OPTARG");;
     i) init=("$OPTARG");;
     r) report_ip=("$OPTARG");;
+    g) report_gen=("$OPTARG");;
+    e) report_serve=("$OPTARG");;
     h) help
        exit;;
     *) echo 'invalid argumants' ;;
@@ -77,7 +84,7 @@ EOF
   then
     python3 ~/sisyphus/boulder/shove.py -t $type
   else
-    python3 ~/sisyphus/boulder/report.py -t $type -r $report_ip
+    python3 ~/sisyphus/boulder/report.py -t $type -r $report_ip -g $report_gen -e $report_serve
   fi
 fi
 
@@ -107,7 +114,6 @@ EOF
   then
     python3 ~/sisyphus/boulder/shove.py -t $type
   else
-    python3 ~/sisyphus/boulder/report.py -t $type -r $report_ip
+    python3 ~/sisyphus/boulder/report.py -t $type -r $report_ip -g $report_gen -e $report_serve
   fi
 fi
-
