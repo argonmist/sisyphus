@@ -84,6 +84,17 @@ class summit:
                     self.write_property(python_code, v, 'then')
                     self.write_step(code_class, testcase, python_code, v)
 
+    def quit_app(self, platform):
+        python_code = open('steps.py','a')
+        if platform == 'ios':
+            code_class = 'pebble'
+        if platform == 'android':
+            code_class = 'rock'
+        if platform == 'webc':
+            code_class = 'stone'
+        quit_code = '    ' + code_class + '().quit()'
+        python_code.write(quit_code)
+
     def report_generate(self, platform, testcase):
         os.chdir(home + '/sisyphus/bdd/' + platform)
         behave_cmd = 'behave -f allure_behave.formatter:AllureFormatter -o report --capture ./' + testcase
@@ -119,6 +130,8 @@ class summit:
         for i in features: 
             self.feature_generate(i, features, yaml_path)
             self.python_code_generate(platform, i, features, yaml_path)
+
+        self.quit_app(platform)
 
         for k, v in yaml_path.items():
             if k != 'bdd':

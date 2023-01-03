@@ -361,3 +361,5 @@ class rock:
             keycode = self.string_to_keycode(i)
             self.driver.press_keycode(keycode)
 
+    def quit(self):
+        self.driver.quit()
