@@ -56,7 +56,7 @@ class pebble:
                             click_btn.click()
                 if j == 'scroll':
                     print(self.yaml_path[block_name][title][k]['scroll']['desc'])
-                    self.scroll_to_name(self.yaml_path[block_name][k]['scroll']['name'])
+                    self.scroll_to_name(self.yaml_path[block_name][title][k]['scroll']['name'])
                 if j == 'snapshot':
                     if self.yaml_path[block_name][k]['snapshot']['enable'] == 'yes':
                         print(self.yaml_path[block_name][title][k]['snapshot']['desc'])

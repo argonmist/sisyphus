@@ -53,7 +53,7 @@ class rock:
                             click_btn.click()
                 if j == 'scroll':
                     print(self.yaml_path[block_name][title][k]['scroll']['desc'])
-                    self.scroll_to_text(self.yaml_path[block_name][k]['scroll']['text'])
+                    self.scroll_to_text(self.yaml_path[block_name][title][k]['scroll']['text'])
                 if j == 'snapshot':
                     if self.yaml_path[block_name][title][k]['snapshot']['enable'] == 'yes':
                         print(self.yaml_path[block_name][title][k]['snapshot']['desc'])
