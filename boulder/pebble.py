@@ -179,8 +179,9 @@ class pebble:
 
     def send_keys(self, element, value):
         element.send_keys(value)
-        done_btn = self.find_element(('xpath', '//XCUIElementTypeButton[@name="Done"]'))
-        done_btn.click()
+        if self.is_element_exist(('xpath', '//XCUIElementTypeButton[@name="Done"]')):
+            done_btn = self.find_element(('xpath', '//XCUIElementTypeButton[@name="Done"]'))
+            done_btn.click()
 
     def scroll_exist(self, value):
         try:
