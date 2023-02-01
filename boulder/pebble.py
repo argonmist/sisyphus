@@ -339,3 +339,6 @@ class pebble:
             return True
         else:
             return False
+
+    def quit(self):
+        self.driver.quit()
